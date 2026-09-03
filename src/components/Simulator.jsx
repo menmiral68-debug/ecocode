@@ -1,0 +1,6 @@
+import React,{useState} from 'react'
+import {scenarios} from '../data/scenarios'
+import {applyDecision} from '../game/scoring'
+import ForestScene from './ForestScene'
+import DecisionPanel from './DecisionPanel'
+export default function Simulator({state,setState,onFinish}){const [index,setIndex]=useState(Math.min(state.completed.length,scenarios.length-1));const [feedback,setFeedback]=useState(null);const [locked,setLocked]=useState(false);const scenario=scenarios[index];function choose(option){if(locked)return;setLocked(true);const next=applyDecision(state,scenario,option);setState(next);setFeedback(option);setTimeout(()=>{setFeedback(null);if(index<scenarios.length-1){setIndex(index+1);setLocked(false)}else onFinish()},700)}return <section className="sim-page"><div className="sim-top"><div><p className="kicker">Симулятор</p><h1>Твой выбор меняет<br/>сцену.</h1></div><div className="steps">{scenarios.map((s,i)=><span className={i<=index?'on':''} key={s.id}>{String(i+1).padStart(2,'0')}</span>)}</div></div><div className="sim-grid"><ForestScene risk={state.risk}/><DecisionPanel scenario={scenario} onDecision={choose} disabled={locked}/></div>{feedback&&<div className={feedback.good?'feedback good':'feedback'}><b>{feedback.good?'Верное решение':'Стоит подумать ещё раз'}</b><span>{feedback.note} {feedback.xp?`+${feedback.xp} XP`:''}</span></div>}</section>}
