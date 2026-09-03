@@ -1,0 +1,2 @@
+import React from 'react'
+export default function Header({page,setPage,state}){return <header className="header"><button className="brand" onClick={()=>setPage('home')} aria-label="На главную"><span className="brand-mark">Э</span><span>ЭкоКод</span></button><nav>{[['home','Главная'],['simulator','Симулятор'],['progress','Мой прогресс']].map(([id,label])=><button key={id} className={page===id?'active':''} onClick={()=>setPage(id)}>{label}</button>)}</nav><div className="header-xp">{state.xp} XP</div></header>}
