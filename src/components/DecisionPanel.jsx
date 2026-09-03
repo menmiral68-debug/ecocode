@@ -1,0 +1,2 @@
+import React from 'react'
+export default function DecisionPanel({scenario,onDecision,disabled}){return <div className="decision"><div className="decision-top"><span>{scenario.label}</span><small>выбери один вариант</small></div><h2>{scenario.title}</h2><p>{scenario.text}</p><div className="options">{scenario.options.map((o,i)=><button key={o.id} disabled={disabled} onClick={()=>onDecision(o)}><span>0{i+1}</span><b>{o.title}</b><i>→</i></button>)}</div></div>}
