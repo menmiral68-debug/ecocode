@@ -1,47 +1,442 @@
 'use strict';
-const KEY='ecocode_v3';
-const scenarios=[
-{id:'camp',title:'Поход с друзьями',desc:'Собираетесь на стоянку. Нужно решить, как организовать отдых без лишнего риска.',icon:'⛺',meta:'уровень 1',questions:[
-['НАБЛЮДЕНИЕ','Вы пришли на место. С чего начать?','Проверить правила и условия на сегодня','Верно. Ограничения могут меняться из-за пожароопасной обстановки.'],
-['РЮКЗАК','В рюкзаке есть спички. Что важно сделать?','Убрать так, чтобы они не стали случайным источником огня','Верно. Главное — не создавать лишний риск.'],
-['МЕСТО','Рядом сухая трава, а ветер усиливается. Что выбираешь?','Отказаться от открытого огня и выбрать безопасный вариант отдыха','Да. Ветер и сухая растительность повышают опасность распространения огня.'],
-['СИТУАЦИЯ','Ты заметил опасное возгорание неподалёку. Твой первый шаг?','Сообщить взрослым и при необходимости позвонить 101 или 112','Верно. При обнаружении возгорания МЧС рекомендует сообщать по 101 или 112.'],
-['ФИНАЛ','Перед уходом со стоянки что важнее всего?','Убедиться, что место оставлено безопасным и без источников огня','Да. Безопасность важнее скорости ухода.']
-]},
-{id:'fish',title:'Рыбалка в тундре',desc:'Ветер меняется, погода портится. Учись замечать риск до того, как он станет проблемой.',icon:'◌',meta:'уровень 2',questions:[
-['ПОГОДА','Перед выходом погода выглядит сухой и ветреной. Что учитываешь?','Официальные предупреждения и местные ограничения','Верно. Условия и ограничения нужно проверять перед отдыхом.'],
-['ОТДЫХ','Компания хочет использовать открытый огонь. Что делаешь?','Проверяю, разрешён ли он сейчас и здесь','Да. Правила зависят от действующих ограничений и обстановки.'],
-['ВЕТЕР','Ветер заметно усилился. Самое разумное решение?','Отказаться от открытого огня','Верно. Это простое решение резко снижает риск.'],
-['СООБЩЕНИЕ','Увидел дым от природного пожара. Что делать?','Сообщить взрослым и позвонить 101 или 112','Верно. МЧС ЯНАО напоминает сообщать о возгорании по 101 или 112.'],
-['ФИНАЛ','Какой принцип забираешь с собой?','Сначала условия и последствия, потом действие','Именно так работает ответственное поведение на природе.']
-]},
-{id:'picnic',title:'Семейный пикник',desc:'Нужно выбрать безопасный формат отдыха и заметить признаки меняющейся обстановки.',icon:'✦',meta:'уровень 3',questions:[
-['ПЛАН','Семья собирается на природу. Что проверяете заранее?','Правила места и актуальные ограничения','Верно. Ограничения могут вводиться при высокой пожарной опасности.'],
-['МЕСТО','Вы нашли сухую траву и думаете о костре. Решение?','Не использовать открытый огонь','Да. Сухая растительность — лишний риск.'],
-['ДЕТИ','Младшие дети играют рядом с местом отдыха. Что меняешь?','Убираю потенциальные источники опасности и держу детей под присмотром взрослых','Верно. Безопасная организация пространства важна не меньше правил.'],
-['ДЫМ','Появился дым вдалеке. Что делать?','Сообщить взрослым и при необходимости в 101/112','Верно. При обнаружении возгорания МЧС рекомендует сообщать по 101 или 112.'],
-['ФИНАЛ','Как выглядит хороший туристический навык?','Уметь заметить риск и вовремя выбрать безопасное решение','Да. Именно это тренирует ЭкоКод.']
-]}
+
+const STORAGE_KEY = 'ecocode_v4';
+const MAX_XP = 375;
+
+const scenarios = [
+  {
+    id: 'camp',
+    title: 'Поход с друзьями',
+    desc: 'Собираетесь на стоянку. Нужно решить, как организовать отдых без лишнего риска.',
+    icon: '⛺',
+    meta: 'уровень 1',
+    questions: [
+      ['НАБЛЮДЕНИЕ', 'Вы пришли на место. С чего начать?', 'Проверить правила и условия на сегодня', 'Верно. Ограничения могут меняться из-за пожароопасной обстановки.'],
+      ['РЮКЗАК', 'В рюкзаке есть спички. Что важно сделать?', 'Убрать так, чтобы они не стали случайным источником огня', 'Верно. Главное — не создавать лишний риск.'],
+      ['МЕСТО', 'Рядом сухая трава, а ветер усиливается. Что выбираешь?', 'Отказаться от открытого огня и выбрать безопасный вариант отдыха', 'Да. Ветер и сухая растительность повышают опасность распространения огня.'],
+      ['СИТУАЦИЯ', 'Ты заметил опасное возгорание неподалёку. Твой первый шаг?', 'Сообщить взрослым и при необходимости позвонить 101 или 112', 'Верно. При обнаружении возгорания сообщают по 101 или 112.'],
+      ['ФИНАЛ', 'Перед уходом со стоянки что важнее всего?', 'Убедиться, что место оставлено безопасным и без источников огня', 'Да. Безопасность важнее скорости ухода.']
+    ]
+  },
+  {
+    id: 'fish',
+    title: 'Рыбалка в тундре',
+    desc: 'Ветер меняется, погода портится. Учись замечать риск до того, как он станет проблемой.',
+    icon: '◌',
+    meta: 'уровень 2',
+    questions: [
+      ['ПОГОДА', 'Перед выходом погода выглядит сухой и ветреной. Что учитываешь?', 'Официальные предупреждения и местные ограничения', 'Верно. Условия и ограничения нужно проверять перед отдыхом.'],
+      ['ОТДЫХ', 'Компания хочет использовать открытый огонь. Что делаешь?', 'Проверяю, разрешён ли он сейчас и здесь', 'Да. Правила зависят от действующих ограничений и обстановки.'],
+      ['ВЕТЕР', 'Ветер заметно усилился. Самое разумное решение?', 'Отказаться от открытого огня', 'Верно. Усиление ветра — причина снижать риск.'],
+      ['СООБЩЕНИЕ', 'Увидел дым от природного пожара. Что делать?', 'Сообщить взрослым и позвонить 101 или 112', 'Верно. О возгорании нужно сообщить взрослым и в экстренные службы.'],
+      ['ФИНАЛ', 'Какой принцип забираешь с собой?', 'Сначала условия и последствия, потом действие', 'Именно так работает ответственное поведение на природе.']
+    ]
+  },
+  {
+    id: 'picnic',
+    title: 'Семейный пикник',
+    desc: 'Нужно выбрать безопасный формат отдыха и заметить признаки меняющейся обстановки.',
+    icon: '✦',
+    meta: 'уровень 3',
+    questions: [
+      ['ПЛАН', 'Семья собирается на природу. Что проверяете заранее?', 'Правила места и актуальные ограничения', 'Верно. Ограничения могут вводиться при высокой пожарной опасности.'],
+      ['МЕСТО', 'Вы нашли сухую траву и думаете о костре. Решение?', 'Не использовать открытый огонь', 'Да. Сухая растительность — лишний риск.'],
+      ['ДЕТИ', 'Младшие дети играют рядом с местом отдыха. Что меняешь?', 'Убираю потенциальные источники опасности и держу детей под присмотром взрослых', 'Верно. Безопасная организация пространства важна не меньше правил.'],
+      ['ДЫМ', 'Появился дым вдалеке. Что делать?', 'Сообщить взрослым и при необходимости в 101/112', 'Верно. К источнику опасности приближаться не следует.'],
+      ['ФИНАЛ', 'Как выглядит хороший туристический навык?', 'Уметь заметить риск и вовремя выбрать безопасное решение', 'Да. Именно это тренирует ЭкоКод.']
+    ]
+  }
 ];
-const state={name:'',xp:0,done:{},streak:0};let current=null,qIndex=0,risk=0,sessionXP=0,safe=0,hotspots=new Set(),actionUsed={};
-function $(id){return document.getElementById(id)}
-function load(){try{const x=JSON.parse(localStorage.getItem(KEY)||'{}');if(x&&typeof x==='object'){state.name=typeof x.name==='string'?x.name.slice(0,24):'';state.xp=Number.isFinite(x.xp)?Math.max(0,x.xp):0;state.done=x.done&&typeof x.done==='object'?x.done:{};state.streak=Number.isFinite(x.streak)?Math.max(0,x.streak):0}}catch{}}
-function save(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch{}}
-function toast(text){const el=$('toast');if(!el)return;el.textContent=text;el.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>el.classList.remove('show'),2400)}
-function view(id){document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+id));document.querySelectorAll('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===id));window.scrollTo({top:0,behavior:'smooth'});if(id==='sim')renderScenarios();if(id==='progress')renderProgress()}
-function updateHeader(){const n=state.name||'Гость';$('profileName').textContent=n;$('homeGreeting').textContent=n?`С возвращением, ${n}. Имя и игровой прогресс хранятся только в этом браузере.`:'Сохраняем только имя/ник и игровой прогресс на этом устройстве.';$('progressTitle').textContent=n?`${n}, твой прогресс`:'Твой прогресс';$('totalXP').textContent=state.xp+' XP'}
-function openProfile(){$('nameInput').value=state.name;$('profileModal').classList.add('show');setTimeout(()=>$('nameInput').focus(),30)}
-function closeProfile(){$('profileModal').classList.remove('show')}
-function saveProfile(){const n=$('nameInput').value.trim().replace(/\s+/g,' ').slice(0,24);state.name=n;save();updateHeader();closeProfile();toast(n?`Рад снова видеть тебя, ${n}!`:'Профиль очищен.')}
-function renderScenarios(){const list=$('scenarioList');list.textContent='';scenarios.forEach((s,i)=>{const unlocked=i===0||state.done[scenarios[i-1].id];const card=document.createElement('article');card.className='scenario-card'+(unlocked?'':' locked');card.tabIndex=unlocked?0:-1;card.setAttribute('role','button');const icon=document.createElement('div');icon.className='sc-icon';icon.textContent=s.icon;const body=document.createElement('div');const t=document.createElement('div');t.className='sc-title';t.textContent=s.title;const d=document.createElement('div');d.className='sc-desc';d.textContent=s.desc;const m=document.createElement('div');m.className='sc-meta';m.textContent=s.meta+' · 5 решений';body.append(t,d,m);const st=document.createElement('span');st.className='status '+(state.done[s.id]?'done':unlocked?'open':'');st.textContent=state.done[s.id]?'✓ пройден':unlocked?'играть':'закрыт';card.append(icon,body,st);if(unlocked){card.onclick=()=>start(s.id);card.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();start(s.id)}}}list.append(card)});const done=scenarios.filter(s=>state.done[s.id]).length;$('overallProgressText').textContent=`${done} / ${scenarios.length}`;$('overallProgressBar').style.width=(done/scenarios.length*100)+'%'}
-function start(id){current=scenarios.find(s=>s.id===id);if(!current)return;qIndex=0;risk=12;sessionXP=0;safe=0;hotspots=new Set();actionUsed={};$('game').hidden=false;$('result').classList.remove('show');$('questionBox').style.display='block';$('game').scrollIntoView({behavior:'smooth',block:'start'});$('gameTitle').textContent=current.title;renderQuestion();updateScene()}
-function renderQuestion(){const q=current.questions[qIndex];$('gameStep').textContent=`Решение ${qIndex+1} из ${current.questions.length}`;$('questionTag').textContent=q[0];$('questionCount').textContent=`${qIndex+1} / ${current.questions.length}`;$('questionText').textContent=q[1];const answers=[q[2],randomWrong(q[2]),randomWrong(q[2],1)];answers.sort(()=>Math.random()-.5);const box=$('answers');box.textContent='';answers.forEach((text,i)=>{const b=document.createElement('button');b.className='answer';b.type='button';b.textContent=text;b.onclick=()=>answer(text,b,text===q[2],q[3]);box.append(b)});$('feedback').className='feedback';$('feedback').textContent=''}
-function randomWrong(correct,variant=0){const pool=['Пройти мимо и ничего не менять','Подойти ближе и проверить самому','Продолжить как обычно, если огонь небольшой','Сначала снять видео и разобраться позже','Выбрать самый сухой участок'];let x=pool.filter(v=>v!==correct)[variant%4];return x||pool[0]}
-function answer(text,button,good,note){document.querySelectorAll('.answer').forEach(b=>b.disabled=true);button.classList.add(good?'correct':'wrong');if(good){safe++;sessionXP+=25;state.xp=Math.min(150,state.xp+25);state.streak++ ;risk=Math.max(0,risk-12)}else{state.streak=0;risk=Math.min(100,risk+18)}save();const f=$('feedback');f.className='feedback show '+(good?'good':'');f.innerHTML=`<b>${good?'Верное решение':'Стоит подумать ещё раз'}</b><span>${note} ${good?'+25 XP':''}</span>`;updateScene();setTimeout(()=>{if(qIndex<current.questions.length-1){qIndex++;renderQuestion()}else finish()},750)}
-function finish(){state.done[current.id]=true;save();$('questionBox').style.display='none';$('actionbar').style.display='none';$('result').classList.add('show');$('resultTitle').textContent=safe>=4?'Маршрут под контролем':safe>=3?'Хороший разбор':'Есть что повторить';$('resultText').textContent=safe>=4?'Ты хорошо замечаешь условия и выбираешь действия, которые снижают риск.':safe>=3?'Основные принципы уже понятны. Повтори ошибки — и попробуй ещё раз.':'Ошибки тоже часть обучения. Вернись к сценарию и проверь решения ещё раз.';$('resultXP').textContent=sessionXP;$('resultRisk').textContent=risk<30?'низкий':risk<60?'средний':'высокий';$('resultDecisions').textContent=`${safe}/${current.questions.length}`;$('gameXP').textContent=state.xp;renderScenarios();renderProgress()}
-function replay(){start(current.id);$('actionbar').style.display='flex'}
-function updateScene(){const meter=$('riskMeter');meter.style.width=risk+'%';meter.style.background=risk<30?'var(--green)':risk<60?'var(--amber)':'var(--red)';$('riskLabel').textContent=risk<30?'низкий':risk<60?'средний':'высокий';$('gameXP').textContent=state.xp}
-function action(kind){if(actionUsed[kind])return;actionUsed[kind]=true;if(kind==='water'){risk=Math.max(0,risk-10);toast('Риск снижен: сначала оценить условия.')}if(kind==='adult'){risk=Math.max(0,risk-15);toast('Хорошее решение: подключить взрослого.')}if(kind==='call'){risk=Math.max(0,risk-20);toast('Правильный шаг: 101 или 112.')}updateScene();save()}
-function renderProgress(){const done=scenarios.filter(s=>state.done[s.id]).length;$('doneCount').textContent=`${done} / ${scenarios.length}`;$('streakCount').textContent=state.streak;$('totalXP').textContent=state.xp+' XP';$('xpLine').style.width=Math.min(100,state.xp/1.5)+'%';const grid=$('badgeGrid');grid.textContent='';[['first','🌲','Первый шаг','Пройди первый сценарий'],['safe','✦','Безопасный выбор','Сделай 5 безопасных решений'],['route','◆','Маршрут под контролем','Заверши все 3 сценария'],['streak','↗','Серия','Сохрани серию решений']].forEach(([id,icon,title,desc])=>{const ok=id==='first'?done>=1:id==='safe'?state.xp>=125:id==='route'?done>=3:state.streak>=3;const el=document.createElement('div');el.className='badge '+(ok?'':'locked');el.innerHTML=`<div class="medal">${icon}</div><strong>${title}</strong><span>${ok?'получено':desc}</span>`;grid.append(el)})}
-function bind(){document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',e=>{e.preventDefault();view(b.dataset.view)}));document.querySelectorAll('[data-action="start"]').forEach(b=>b.addEventListener('click',()=>view('sim')));document.querySelector('[data-action="how"]').addEventListener('click',()=>document.getElementById('how').scrollIntoView({behavior:'smooth'}));$('profileBtn').onclick=openProfile;$('closeProfile').onclick=closeProfile;$('saveProfile').onclick=saveProfile;$('nameInput').addEventListener('keydown',e=>{if(e.key==='Enter')saveProfile()});$('profileModal').addEventListener('click',e=>{if(e.target===$('profileModal'))closeProfile()});$('waterBtn').onclick=()=>action('water');$('adultBtn').onclick=()=>action('adult');$('callBtn').onclick=()=>action('call');$('backBtn').onclick=()=>{view('sim');$('game').hidden=true};$('replayBtn').onclick=replay}
-load();bind();updateHeader();renderScenarios();renderProgress();
+
+const state = { name: '', xp: 0, done: {}, streak: 0 };
+let currentScenario = null;
+let questionIndex = 0;
+let risk = 12;
+let sessionXP = 0;
+let safeDecisions = 0;
+let usedActions = new Set();
+let toastTimer = 0;
+
+const $ = id => document.getElementById(id);
+
+function clamp(value, min, max) {
+  return Math.min(max, Math.max(min, value));
+}
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return;
+    const saved = JSON.parse(raw);
+    if (!saved || typeof saved !== 'object') return;
+    state.name = typeof saved.name === 'string' ? saved.name.slice(0, 24) : '';
+    state.xp = Number.isFinite(saved.xp) ? clamp(saved.xp, 0, MAX_XP) : 0;
+    state.streak = Number.isFinite(saved.streak) ? clamp(saved.streak, 0, 999) : 0;
+    state.done = saved.done && typeof saved.done === 'object' ? saved.done : {};
+  } catch (_) {
+    state.name = '';
+    state.xp = 0;
+    state.streak = 0;
+    state.done = {};
+  }
+}
+
+function saveState() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify({
+      name: state.name,
+      xp: state.xp,
+      done: state.done,
+      streak: state.streak
+    }));
+  } catch (_) {
+    // Local progress is optional; the simulator must remain usable if storage is unavailable.
+  }
+}
+
+function showToast(message) {
+  const element = $('toast');
+  if (!element) return;
+  element.textContent = message;
+  element.classList.add('show');
+  window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => element.classList.remove('show'), 2400);
+}
+
+function switchView(viewName) {
+  document.querySelectorAll('.view').forEach(view => {
+    view.classList.toggle('active', view.id === `view-${viewName}`);
+  });
+  document.querySelectorAll('[data-view]').forEach(button => {
+    button.classList.toggle('active', button.dataset.view === viewName);
+  });
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (viewName === 'sim') renderScenarios();
+  if (viewName === 'progress') renderProgress();
+}
+
+function updateHeader() {
+  const name = state.name || 'Гость';
+  $('profileName').textContent = name;
+  $('homeGreeting').textContent = state.name
+    ? `С возвращением, ${state.name}. Имя и игровой прогресс хранятся только в этом браузере.`
+    : 'Сохраняем только имя/ник и игровой прогресс на этом устройстве.';
+  $('progressTitle').textContent = state.name ? `${state.name}, твой прогресс` : 'Твой прогресс';
+  $('totalXP').textContent = `${state.xp} XP`;
+}
+
+function openProfile() {
+  const modal = $('profileModal');
+  if (!modal) return;
+  $('nameInput').value = state.name;
+  modal.classList.add('show');
+  window.setTimeout(() => $('nameInput').focus(), 30);
+}
+
+function closeProfile() {
+  $('profileModal').classList.remove('show');
+}
+
+function saveProfile() {
+  const value = $('nameInput').value.trim().replace(/\s+/g, ' ').slice(0, 24);
+  state.name = value;
+  saveState();
+  updateHeader();
+  closeProfile();
+  showToast(value ? `Профиль сохранён: ${value}` : 'Имя очищено.');
+}
+
+function renderScenarios() {
+  const list = $('scenarioList');
+  if (!list) return;
+  list.replaceChildren();
+
+  scenarios.forEach((scenario, index) => {
+    const unlocked = index === 0 || Boolean(state.done[scenarios[index - 1].id]);
+    const completed = Boolean(state.done[scenario.id]);
+
+    const card = document.createElement('article');
+    card.className = `scenario-card${unlocked ? '' : ' locked'}`;
+    card.setAttribute('role', 'button');
+    card.tabIndex = unlocked ? 0 : -1;
+    card.setAttribute('aria-disabled', String(!unlocked));
+
+    const icon = document.createElement('div');
+    icon.className = 'sc-icon';
+    icon.textContent = scenario.icon;
+
+    const body = document.createElement('div');
+    const title = document.createElement('div');
+    title.className = 'sc-title';
+    title.textContent = scenario.title;
+    const description = document.createElement('div');
+    description.className = 'sc-desc';
+    description.textContent = scenario.desc;
+    const meta = document.createElement('div');
+    meta.className = 'sc-meta';
+    meta.textContent = `${scenario.meta} · 5 решений`;
+    body.append(title, description, meta);
+
+    const status = document.createElement('span');
+    status.className = `status ${completed ? 'done' : unlocked ? 'open' : ''}`;
+    status.textContent = completed ? '✓ пройден' : unlocked ? 'играть' : 'закрыт';
+
+    card.append(icon, body, status);
+
+    if (unlocked) {
+      card.addEventListener('click', () => startScenario(scenario.id));
+      card.addEventListener('keydown', event => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          startScenario(scenario.id);
+        }
+      });
+    }
+    list.append(card);
+  });
+
+  const completedCount = scenarios.filter(scenario => state.done[scenario.id]).length;
+  $('overallProgressText').textContent = `${completedCount} / ${scenarios.length}`;
+  $('overallProgressBar').style.width = `${completedCount / scenarios.length * 100}%`;
+}
+
+function startScenario(id) {
+  const scenario = scenarios.find(item => item.id === id);
+  if (!scenario) return;
+
+  currentScenario = scenario;
+  questionIndex = 0;
+  risk = 12;
+  sessionXP = 0;
+  safeDecisions = 0;
+  usedActions = new Set();
+
+  $('game').hidden = false;
+  $('result').classList.remove('show');
+  $('questionBox').style.display = '';
+  $('actionbar').style.display = '';
+  $('gameTitle').textContent = scenario.title;
+  renderQuestion();
+  updateScene();
+  $('game').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+function buildWrongAnswers(correctAnswer) {
+  const pool = [
+    'Продолжить как обычно, если кажется, что риск небольшой',
+    'Подойти ближе и проверить ситуацию самому',
+    'Сначала снять видео и разобраться позже',
+    'Выбрать место, где сухой растительности больше',
+    'Ничего не менять, пока проблема не станет очевидной'
+  ];
+  return pool.filter(item => item !== correctAnswer).slice(0, 2);
+}
+
+function renderQuestion() {
+  if (!currentScenario) return;
+  const question = currentScenario.questions[questionIndex];
+  const [tag, text, correct, explanation] = question;
+  const answers = [correct, ...buildWrongAnswers(correct)].sort(() => Math.random() - 0.5);
+  const container = $('answers');
+  container.replaceChildren();
+
+  $('gameStep').textContent = `Решение ${questionIndex + 1} из ${currentScenario.questions.length}`;
+  $('questionTag').textContent = tag;
+  $('questionCount').textContent = `${questionIndex + 1} / ${currentScenario.questions.length}`;
+  $('questionText').textContent = text;
+
+  const feedback = $('feedback');
+  feedback.className = 'feedback';
+  feedback.replaceChildren();
+
+  answers.forEach(answerText => {
+    const button = document.createElement('button');
+    button.className = 'answer';
+    button.type = 'button';
+    button.textContent = answerText;
+    button.addEventListener('click', () => handleAnswer(button, answerText === correct, explanation));
+    container.append(button);
+  });
+}
+
+function handleAnswer(button, correct, explanation) {
+  const buttons = [...document.querySelectorAll('.answer')];
+  if (buttons.some(item => item.disabled)) return;
+  buttons.forEach(item => { item.disabled = true; });
+  button.classList.add(correct ? 'correct' : 'wrong');
+
+  if (correct) {
+    safeDecisions += 1;
+    sessionXP += 25;
+    state.xp = clamp(state.xp + 25, 0, MAX_XP);
+    state.streak += 1;
+    risk = clamp(risk - 12, 0, 100);
+  } else {
+    state.streak = 0;
+    risk = clamp(risk + 18, 0, 100);
+  }
+
+  saveState();
+  updateScene();
+
+  const feedback = $('feedback');
+  feedback.className = `feedback show${correct ? ' good' : ''}`;
+  const heading = document.createElement('b');
+  heading.textContent = correct ? 'Верное решение' : 'Стоит подумать ещё раз';
+  const note = document.createElement('span');
+  note.textContent = `${explanation}${correct ? ' +25 XP' : ''}`;
+  feedback.replaceChildren(heading, note);
+
+  window.setTimeout(() => {
+    if (questionIndex < currentScenario.questions.length - 1) {
+      questionIndex += 1;
+      renderQuestion();
+    } else {
+      finishScenario();
+    }
+  }, 750);
+}
+
+function finishScenario() {
+  if (!currentScenario) return;
+  state.done[currentScenario.id] = true;
+  saveState();
+
+  $('questionBox').style.display = 'none';
+  $('actionbar').style.display = 'none';
+  $('result').classList.add('show');
+
+  const level = safeDecisions >= 4 ? 'Маршрут под контролем' : safeDecisions >= 3 ? 'Хороший разбор' : 'Есть что повторить';
+  $('resultTitle').textContent = level;
+  $('resultText').textContent = safeDecisions >= 4
+    ? 'Ты хорошо замечаешь условия и выбираешь решения, которые снижают риск.'
+    : safeDecisions >= 3
+      ? 'Основные принципы уже понятны. Повтори ошибки и попробуй сценарий ещё раз.'
+      : 'Ошибки тоже часть обучения. Вернись к сценарию и проверь решения ещё раз.';
+  $('resultXP').textContent = sessionXP;
+  $('resultRisk').textContent = risk < 30 ? 'низкий' : risk < 60 ? 'средний' : 'высокий';
+  $('resultDecisions').textContent = `${safeDecisions}/${currentScenario.questions.length}`;
+  $('gameXP').textContent = state.xp;
+
+  renderScenarios();
+  renderProgress();
+}
+
+function updateScene() {
+  const meter = $('riskMeter');
+  const label = $('riskLabel');
+  meter.style.width = `${risk}%`;
+  meter.classList.toggle('medium', risk >= 30 && risk < 60);
+  meter.classList.toggle('high', risk >= 60);
+  label.textContent = risk < 30 ? 'низкий' : risk < 60 ? 'средний' : 'высокий';
+  $('gameXP').textContent = state.xp;
+}
+
+function useAction(kind) {
+  if (usedActions.has(kind)) return;
+  usedActions.add(kind);
+
+  const effects = { water: -10, adult: -15, call: -20 };
+  risk = clamp(risk + effects[kind], 0, 100);
+  updateScene();
+  saveState();
+
+  const messages = {
+    water: 'Риск снижен: остановиться и оценить условия — правильная привычка.',
+    adult: 'Хорошее решение: подключить взрослого, если ситуация становится сложнее.',
+    call: 'Правильный шаг: о возгорании сообщают по 101 или 112.'
+  };
+  showToast(messages[kind]);
+}
+
+function replayScenario() {
+  if (currentScenario) startScenario(currentScenario.id);
+}
+
+function renderProgress() {
+  const completedCount = scenarios.filter(scenario => state.done[scenario.id]).length;
+  $('doneCount').textContent = `${completedCount} / ${scenarios.length}`;
+  $('streakCount').textContent = state.streak;
+  $('totalXP').textContent = `${state.xp} XP`;
+  $('xpLine').style.width = `${clamp(state.xp / MAX_XP * 100, 0, 100)}%`;
+
+  const badges = [
+    ['first', '🌲', 'Первый шаг', 'Пройди первый сценарий', completedCount >= 1],
+    ['safe', '✦', 'Безопасный выбор', 'Сделай 5 безопасных решений', state.xp >= 125],
+    ['route', '◆', 'Маршрут под контролем', 'Заверши все 3 сценария', completedCount >= 3],
+    ['streak', '↗', 'Серия', 'Сохрани серию из 3 решений', state.streak >= 3]
+  ];
+
+  const grid = $('badgeGrid');
+  grid.replaceChildren();
+  badges.forEach(([, icon, title, description, unlocked]) => {
+    const element = document.createElement('div');
+    element.className = `badge${unlocked ? '' : ' locked'}`;
+    const medal = document.createElement('div');
+    medal.className = 'medal';
+    medal.textContent = icon;
+    const strong = document.createElement('strong');
+    strong.textContent = title;
+    const text = document.createElement('span');
+    text.textContent = unlocked ? 'получено' : description;
+    element.append(medal, strong, text);
+    grid.append(element);
+  });
+}
+
+function bindEvents() {
+  document.querySelectorAll('[data-view]').forEach(button => {
+    button.addEventListener('click', event => {
+      event.preventDefault();
+      switchView(button.dataset.view);
+    });
+  });
+
+  document.querySelectorAll('[data-action="start"]').forEach(button => {
+    button.addEventListener('click', () => switchView('sim'));
+  });
+
+  const howButton = document.querySelector('[data-action="how"]');
+  if (howButton) {
+    howButton.addEventListener('click', () => $('how').scrollIntoView({ behavior: 'smooth' }));
+  }
+
+  $('profileBtn').addEventListener('click', openProfile);
+  $('closeProfile').addEventListener('click', closeProfile);
+  $('saveProfile').addEventListener('click', saveProfile);
+  $('nameInput').addEventListener('keydown', event => {
+    if (event.key === 'Enter') saveProfile();
+    if (event.key === 'Escape') closeProfile();
+  });
+  $('profileModal').addEventListener('click', event => {
+    if (event.target === $('profileModal')) closeProfile();
+  });
+
+  $('waterBtn').addEventListener('click', () => useAction('water'));
+  $('adultBtn').addEventListener('click', () => useAction('adult'));
+  $('callBtn').addEventListener('click', () => useAction('call'));
+  $('backBtn').addEventListener('click', () => {
+    $('game').hidden = true;
+    switchView('sim');
+  });
+  $('replayBtn').addEventListener('click', replayScenario);
+
+  ['spotBag', 'spotFire', 'spotSky'].forEach(id => {
+    const element = $(id);
+    if (!element) return;
+    element.addEventListener('click', () => {
+      const messages = {
+        spotBag: 'Рюкзак: проверь, чтобы потенциальные источники огня не создавали лишнего риска.',
+        spotFire: 'Место: сухая растительность и усиливающийся ветер — повод отказаться от открытого огня.',
+        spotSky: 'Условия: перед отдыхом учитывай официальные предупреждения и действующие ограничения.'
+      };
+      showToast(messages[id]);
+    });
+  });
+}
+
+loadState();
+bindEvents();
+updateHeader();
+renderScenarios();
+renderProgress();
